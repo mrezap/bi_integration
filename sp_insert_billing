@@ -1,0 +1,255 @@
+-- DROP PROCEDURE dwh.insert_billing_latest_data();
+
+CREATE OR REPLACE PROCEDURE dwh.insert_billing_latest_data()
+ LANGUAGE plpgsql
+AS $procedure$
+
+DECLARE
+    row_count       INT;
+    deleted_dates   DATE[];
+	del_amount		NUMERIC;
+    inserted_dates  DATE[];
+	ins_amount		NUMERIC;
+    log_deleted     TEXT;
+    log_inserted    TEXT;
+    columns         TEXT[] := ARRAY 
+	[
+	    '"Sales Organization"' ,
+	    '"Sales Org. Desc"' ,
+	    '"Distribution Channel"' ,
+	    '"Dist.Chan.Desc"' ,
+	    '"Site Code"' ,
+	    '"Site Desc"' ,
+	    '"Cust.Code"' ,
+	    '"Cust.Location"' ,
+	    '"Trans.Zone"' ,
+	    '"Kecamatan"' ,
+	    '"Salesman Code"' ,
+	    '"Salesman Name"' ,
+	    '"Uniqcode Salesman"' ,
+	    '"Sold to Party Code"' ,
+	    '"Sold to Party Name"' ,
+	    '"ID Outlet"' ,
+	    '"City of Customer"' ,
+	    '"SO Number"' ,
+	    '"SO Item No"' ,
+	    '"PO Customer"' ,
+	    '"Delivery No"' ,
+	    '"DO Item no"' ,
+	    '"TOP code"' ,
+	    '"TOP Description"' ,
+	    '"Billing Date"' ,
+	    '"Billing Type"' ,
+	    '"Billing Document"' ,
+	    '"Bill item no"' ,
+	    '"Article Code"' ,
+	    '"Article Description"' ,
+	    '"Item Group Code"' ,
+	    '"Item Group Desc"' ,
+	    '"Item Category"' ,
+	    '"Item Category Desc"' ,
+	    '"Brand"' ,
+	    '"Brand Name"' ,
+	    '"Old Material Number"' ,
+	    '"Vendor"' ,
+	    '"Vendor Name"' ,
+	    '"Document Currency"' ,
+	    '"No Faktur Pajak"' ,
+	    '"SO Type"' ,
+	    '"SO Type Description"' ,
+	    '"Payer Code"' ,
+	    '"Payer Name"' ,
+	    '"Billto Code"' ,
+	    '"Billto Name"' ,
+	    '"BBID-PM"' ,
+	    '"BBID-PM Description"' ,
+	    '"Validity PM"' ,
+	    '"PM Discount"' ,
+	    '"BBID-PnP"' ,
+	    '"BBID-PnP Description"' ,
+	    '"Validity PnP"' ,
+	    '"PnP Discount"' ,
+	    '"BBID-CRM"' ,
+	    '"BBID-CRM Description"' ,
+	    '"Validity CRM"' ,
+	    '"CRM Discount"' ,
+	    '"BBID-Vendor"' ,
+	    '"BBID-Vendor Description"' ,
+	    '"Validity Vendor"' ,
+	    '"Vendor Discount"' ,
+	    '"Promo ID"' ,
+	    '"Promo Vendor Description"' ,
+	    '"Condition Contract"' ,
+	    '"Unit price in frgn curr"' ,
+	    '"Disc price in frgn curr"' ,
+	    '"Kurs"::NUMERIC' ,
+	    '"Quantity"' ,
+	    '"SRP Value"' ,
+	    '"Delta Price-SRP"' ,
+	    '"Unit Price Exc Tax"' ,
+	    '"Unit Price With Tax"' ,
+	    '"Discount Amount Per Unit Exc Tax"' ,
+	    '"Discount Amount Per Unit Inc Tax"' ,
+	    '"Nett Amount Per Price Inc Tax"' ,
+	    '"Nett Amount Per Price Exc Tax"' ,
+	    '"Total Gross Price Inc Tax"' ,
+	    '"Total Gross Price Exc Tax"' ,
+	    '"Total Discount Amount Exc Tax"' ,
+	    '"Total Discount Amount with Tax"' ,
+	    '"Total Nett Amount No Tax"' ,
+	    '"Total Amount Tax"' ,
+	    '"Total Nett Amount with Tax"' ,
+	    '"Lot (batch)"' ,
+	    '"Remark"' ,
+	    '"Ext. Code"' ,
+	    '"Ext. System Name"' ,
+	    '"Exp. Code"' ,
+	    '"Exp. Name"' ,
+	    '"AWB Number"' ,
+	    '"Quantity EA"' ,
+	    '"Quantity PC"' ,
+	    '"Quantity LS"'
+	];
+
+BEGIN
+	EXECUTE
+	'WITH del AS (
+        DELETE FROM dwh.billing_sap AS tgt
+        USING stg_billing AS stg
+        WHERE tgt.billing_date = stg."Billing Date"
+        RETURNING tgt.billing_date AS del_date,
+					tgt.total_nett_amount_no_tax as del_amount
+      )
+      SELECT array_agg(distinct del_date), count (*) AS total_row, sum(del_amount) AS total_amount FROM del'
+	 INTO deleted_dates, row_count, del_amount;
+	 
+	 log_deleted := 'Deleted rows for Billing Date(s): ' || COALESCE(array_to_string(deleted_dates, ', '), 'None');
+	
+	INSERT INTO dwh.process_log (action_type, info_message, total_row, log_time, total_amount)
+    VALUES ('Delete Operation', log_deleted, row_count, now(), del_amount);
+
+	EXECUTE format(
+	'WITH ins AS(
+		INSERT INTO dwh.billing_sap (
+			sales_org
+			,sales_org_desc
+			,dist_channel
+			,dist_channel_desc
+			,site_code
+			,site_desc
+			,cust_code
+			,cust_location
+			,trans_zone
+			,kecamatan_desc
+			,salesman_code
+			,salesman_name
+			,uniqcode_salesman
+			,stp_code
+			,stp_name
+			,outlet_id
+			,city_of_cust
+			,so_number
+			,so_itemno
+			,po_customer
+			,delivery_no
+			,do_itemno
+			,top_code
+			,top_desc
+			,billing_date
+			,billing_type
+			,billing_document
+			,bill_itemno
+			,article_code
+			,article_desc
+			,item_grp_code
+			,item_grp_desc
+			,item_category
+			,item_cat_desc
+			,brand_code
+			,brand_name
+			,old_materialno
+			,vendor_code
+			,vendor_name
+			,doc_currency
+			,no_faktur_pajak
+			,so_type
+			,so_type_desc
+			,payer_code
+			,payer_name
+			,billto_code
+			,billto_name
+			,bbid_pm
+			,bbid_pm_desc
+			,validity_pm
+			,pm_disc
+			,bbid_pnp
+			,bbid_pnp_desc
+			,validity_pnp
+			,pnp_disc
+			,bbid_crm
+			,bbid_crm_desc
+			,validity_crm
+			,crm_disc
+			,bbid_vendor
+			,bbid_vendor_desc
+			,validity_vendor
+			,vendor_disc
+			,promo_id
+			,promo_vendor_desc
+			,condition_contract
+			,unit_price
+			,disc_price
+			,kurs
+			,qty
+			,srp_value
+			,deltaprice_srp
+			,unit_price_exc_tax
+			,unit_price_inc_tax
+			,amount_disc_unit_exc_tax
+			,amount_disc_unit_inc_tax
+			,nett_amount_price_inc_tax
+			,nett_amount_price_exc_tax
+			,total_gross_price_inc_tax
+			,total_gross_price_exc_tax
+			,total_disc_amount_exc_tax
+			,total_disc_amount_inc_tax
+			,total_nett_amount_no_tax
+			,total_amount_tax
+			,total_nett_amount_inc_tax
+			,lot_batch
+			,remark
+			,ext_code
+			,ext_sys_name
+			,exp_code
+			,exp_name
+			,awb_no
+			,qty_ea
+			,qty_pc
+			,qty_ls
+			)
+		SELECT %s FROM stg_billing AS stg
+		RETURNING billing_date AS ins_date,
+					total_nett_amount_no_tax as ins_amount
+      )
+	  SELECT array_agg(distinct ins_date), count(*) AS total_row, sum(ins_amount) as ins_amount FROM ins',
+      array_to_string(columns, ', stg.')
+    )
+    INTO inserted_dates, row_count, ins_amount;
+
+	log_inserted := 'Inserted rows for Billing Date(s): ' || COALESCE(array_to_string(inserted_dates, ', '), 'None');
+    
+    INSERT INTO dwh.process_log (action_type, info_message, total_row, log_time, total_amount)
+    VALUES ('Insert Operation', log_inserted, row_count, now(), ins_amount);
+    
+    RAISE NOTICE 'Process upsert completed successfully.';
+	
+	--REFRESH MATERIALIZED VIEW dwh.billing_report_agg;
+
+END;$procedure$
+;
+
+-- Permissions
+
+ALTER PROCEDURE dwh.insert_billing_latest_data() OWNER TO analytics01;
+GRANT ALL ON PROCEDURE dwh.insert_billing_latest_data() TO public;
+GRANT ALL ON PROCEDURE dwh.insert_billing_latest_data() TO analytics01;
