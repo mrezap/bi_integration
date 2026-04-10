@@ -1,0 +1,579 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c53c5d1-07ae-4dc1-b2f3-76b4cb331ff4",
+              "name": "tenant_id",
+              "value": "578dbadd-c32c-4f5a-8c44-33da44c71209",
+              "type": "string"
+            },
+            {
+              "id": "a040a449-bd6d-4a03-8ae3-3f02a6ed782f",
+              "name": "client_id",
+              "value": "26fd9846-9c01-45c2-b3f0-75f746475010",
+              "type": "string"
+            },
+            {
+              "id": "5f2faf6f-1b1a-4af3-9a7b-8890626c768a",
+              "name": "client_secret",
+              "value": "S2L8Q~dkhYRTzmyEBD8IB9~6D61XjzsnGaD3mbJn",
+              "type": "string"
+            },
+            {
+              "id": "5fa181ec-7797-4c33-bdad-e0b33a48961e",
+              "name": "dataflow_id",
+              "value": "e980ce2a-b998-439b-80ed-b5714c0aaea9",
+              "type": "string"
+            },
+            {
+              "id": "ea52db4e-a691-4e11-9ab1-7bddc6a70e77",
+              "name": "workspace_id_dataflow",
+              "value": "2d348dc6-6ef2-491d-8395-0160d63dd72e",
+              "type": "string"
+            },
+            {
+              "id": "e9eef5d5-1827-40ab-bec9-b7519a5e4c50",
+              "name": "dataset_id",
+              "value": "50555edf-13b0-4b59-8674-6d37f4950506",
+              "type": "string"
+            },
+            {
+              "id": "e174b5ac-4520-4877-9526-c0729ce14c43",
+              "name": "workspace_id_dataset",
+              "value": "2d348dc6-6ef2-491d-8395-0160d63dd72e",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        0
+      ],
+      "id": "bec1469e-08c3-48af-b73b-e4f56ec9aa58",
+      "name": "Set Parameter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "91f459ea-87d3-4380-a1b3-2fb3a7d6fa8e",
+              "name": "access_token",
+              "value": "={{ $json.access_token }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        -48
+      ],
+      "id": "018830ff-275e-479c-aea2-2b254dd4f0a1",
+      "name": "Get Token"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://login.microsoftonline.com/{{$json[\"tenant_id\"]}}/oauth2/v2.0/token\n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $json.client_id }}"
+            },
+            {
+              "name": "client_secret",
+              "value": "={{ $json.client_secret }}"
+            },
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            },
+            {
+              "name": "scope",
+              "value": "https://analysis.windows.net/powerbi/api/.default"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -96,
+        64
+      ],
+      "id": "c7c2779f-19c4-4fa9-b987-b424fafce232",
+      "name": "Token Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.powerbi.com/v1.0/myorg/groups/{{ $('Set Parameter').item.json.workspace_id_dataflow }}/dataflows/{{ $('Set Parameter').item.json.dataflow_id }}/refreshes",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('Token Request').item.json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        288,
+        -160
+      ],
+      "id": "f85305aa-b50d-44c3-91ea-6db490c07f8f",
+      "name": "Refresh Dataflow"
+    },
+    {
+      "parameters": {
+        "chatId": "232465975",
+        "text": "=Dataset berhasil di trigger",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1376,
+        -128
+      ],
+      "id": "1cefb22f-36cf-4cde-a364-da8535e5f10c",
+      "name": "Send Notification",
+      "webhookId": "11e59b31-b694-4a03-8e71-b2d60a7a569a",
+      "credentials": {
+        "telegramApi": {
+          "id": "sffDqrtPSU0fiiXo",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        -128
+      ],
+      "id": "954dcffc-c27e-4a26-9512-bdc09982cb2d",
+      "name": "Wait for Refresh",
+      "webhookId": "b6b151fe-0f62-4988-ba8a-915c503dc3b1"
+    },
+    {
+      "parameters": {
+        "amount": 45
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        304
+      ],
+      "id": "9148395c-0d57-4c8b-81ed-cf94d48ea99c",
+      "name": "Polling Status",
+      "webhookId": "3391c0cf-913e-4fac-9cbe-33eab433087d"
+    },
+    {
+      "parameters": {
+        "triggerOn": "file",
+        "path": "D:\\CM Sharing Folder\\master_ken.xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.localFileTrigger",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        112
+      ],
+      "id": "b4599e96-af11-48a5-bbc4-db4eb41d1b27",
+      "name": "Local File Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -624,
+        -256
+      ],
+      "id": "8e7fffcd-d0cd-4f48-ac60-5ef550e06a95",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.powerbi.com/v1.0/myorg/groups/{{ $('Set Parameter').item.json.workspace_id_dataset }}/datasets/{{ $('Set Parameter').item.json.dataset_id }}/refreshes?$top=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('Token Request').item.json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        688,
+        112
+      ],
+      "id": "e86526eb-737c-4b8e-87f7-8536d2f80c31",
+      "name": "Get Status Refresh - Semantic"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.powerbi.com/v1.0/myorg/groups/{{ $('Set Parameter').item.json.workspace_id_dataflow }}/dataflows/{{ $('Set Parameter').item.json.dataflow_id }}/transactions?$top=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('Token Request').item.json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        288,
+        96
+      ],
+      "id": "5630fa94-1f0b-4c36-ba7a-dc327dd57031",
+      "name": "Get Status Refresh - Dataflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6a2d4b30-dbbd-442d-9581-4fe130c0a50f",
+              "leftValue": "={{ $json.value[0].status }}",
+              "rightValue": "Completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        96
+      ],
+      "id": "0af47c64-ac91-443c-8e05-e72ecb08e435",
+      "name": "Validation Status - Semantic"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6a2d4b30-dbbd-442d-9581-4fe130c0a50f",
+              "leftValue": "={{ $json.value[0].status }}",
+              "rightValue": "Success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        464,
+        256
+      ],
+      "id": "8d5827f2-466e-442c-96df-6d4e63f8fff6",
+      "name": "Validation Status - Dataflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.powerbi.com/v1.0/myorg/groups/{{ $('Set Parameter').item.json.workspace_id_dataset }}/datasets/{{ $('Set Parameter').item.json.dataset_id }}/refreshes?$top=1",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer  {{ $('Token Request').item.json.access_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1152,
+        16
+      ],
+      "id": "f414733e-a25a-412c-a1b2-9ba21b1bc9c3",
+      "name": "Refresh Semantic"
+    },
+    {
+      "parameters": {
+        "chatId": "232465975",
+        "text": "=Dataset tidak dapat di refresh.\nStatus refresh terakhir:{{ $('Get Status Refresh - Semantic').item.json.value[0].status }} ",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        288
+      ],
+      "id": "0bb0c813-ab77-4308-8ed8-02497a145506",
+      "name": "Send Notification1",
+      "webhookId": "11e59b31-b694-4a03-8e71-b2d60a7a569a",
+      "credentials": {
+        "telegramApi": {
+          "id": "sffDqrtPSU0fiiXo",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Set Parameter": {
+      "main": [
+        [
+          {
+            "node": "Token Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Token": {
+      "main": [
+        [
+          {
+            "node": "Refresh Dataflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token Request": {
+      "main": [
+        [
+          {
+            "node": "Get Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refresh Dataflow": {
+      "main": [
+        [
+          {
+            "node": "Wait for Refresh",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Notification": {
+      "main": [
+        []
+      ]
+    },
+    "Wait for Refresh": {
+      "main": [
+        [
+          {
+            "node": "Get Status Refresh - Dataflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Polling Status": {
+      "main": [
+        [
+          {
+            "node": "Get Status Refresh - Dataflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Local File Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Parameter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set Parameter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Status Refresh - Semantic": {
+      "main": [
+        [
+          {
+            "node": "Validation Status - Semantic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Status Refresh - Dataflow": {
+      "main": [
+        [
+          {
+            "node": "Validation Status - Dataflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Status - Semantic": {
+      "main": [
+        [
+          {
+            "node": "Refresh Semantic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Notification1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Status - Dataflow": {
+      "main": [
+        [
+          {
+            "node": "Get Status Refresh - Semantic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Polling Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refresh Semantic": {
+      "main": [
+        [
+          {
+            "node": "Send Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9bd82dbf811a39c29e5ab9a31f56122939a3f2141853aef93bcc34dc39402c21"
+  }
+}

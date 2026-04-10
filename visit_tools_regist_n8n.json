@@ -1,0 +1,289 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "TAM Sales Visit Tools - Registration",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "NIK Erajaya",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Region",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "REGION 1"
+                  },
+                  {
+                    "option": "REGION 2"
+                  },
+                  {
+                    "option": "REGION 3"
+                  },
+                  {
+                    "option": "REGION 4"
+                  },
+                  {
+                    "option": "REGION 5"
+                  },
+                  {
+                    "option": "REGION 6"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Nama",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email Corporate (Erajaya)",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email Personal",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Create Password",
+              "fieldType": "password",
+              "placeholder": "Disarankan kombinasi Huruf Besar, Angka & Karakter Unik (!@#)",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -64,
+        -16
+      ],
+      "id": "50ab76d9-a578-4e7c-8a65-c344994a423a",
+      "name": "On form submission",
+      "webhookId": "d6e23b93-bb97-4fe7-88f0-fa23bff6a485"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1A4pAsLc58dCb5e36NLWmdy9Tn54_wqCA9KDfF_YeoD0",
+          "mode": "list",
+          "cachedResultName": "Master Salesmap",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A4pAsLc58dCb5e36NLWmdy9Tn54_wqCA9KDfF_YeoD0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1282414863,
+          "mode": "list",
+          "cachedResultName": "Registrar",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1A4pAsLc58dCb5e36NLWmdy9Tn54_wqCA9KDfF_YeoD0/edit#gid=1282414863"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_erajaya": "={{ $json['Email Corporate (Erajaya)'] }}",
+            "nik_erajaya": "={{ $json['NIK Erajaya'] }}",
+            "nama_sales": "={{ $json.Nama }}",
+            "submitted_at": "={{ $json.submittedAt }}",
+            "form_mode": "={{ $json.formMode }}",
+            "password": "={{ $json['Create Password'] }}",
+            "email_personal": "={{ $json['Email Personal'] }}",
+            "user_region": "={{ $json.Region }}"
+          },
+          "matchingColumns": [
+            "email_erajaya"
+          ],
+          "schema": [
+            {
+              "id": "nik_erajaya",
+              "displayName": "nik_erajaya",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nama_sales",
+              "displayName": "nama_sales",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email_erajaya",
+              "displayName": "email_erajaya",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email_personal",
+              "displayName": "email_personal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "password",
+              "displayName": "password",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "submitted_at",
+              "displayName": "submitted_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "form_mode",
+              "displayName": "form_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "user_region",
+              "displayName": "user_region",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "is_role",
+              "displayName": "is_role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "is_name",
+              "displayName": "is_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        80
+      ],
+      "id": "c6ae5df2-a194-4528-875e-192ae9879803",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "A2wuwBoq4G0w4sXa",
+          "name": "Google account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['Email Corporate (Erajaya)'] }}",
+        "subject": "TAM Sales Visit Tools - Registration Succesfull",
+        "message": "=Hi, {{ $('On form submission').item.json.Nama }}<br>\n<br>\nBerikut kami sampaikan akun akses (username/email dan password) untuk aplikasi Appsheet - TAM Visit Tools. \nMohon dijaga kerahasiaannya dan tidak dibagikan kepada pihak yang tidak berkepentingan.<br><br>\nEmail: {{ $('On form submission').item.json['Email Corporate (Erajaya)'] }}<br>\nPassword: {{ $('On form submission').item.json['Create Password'] }}<br>\nCreated On: {{ new Date($('On form submission').item.json.submittedAt).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) }}<br><br>\nTerima kasih atas perhatian dan kerja samanya.<br><br>\nRegards <br>\nED - CM B2B Teams",
+        "options": {
+          "ccList": "={{ $('On form submission').item.json['Email Personal'] }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -32
+      ],
+      "id": "1d73db09-8d9f-47ae-8575-d6e125d93d67",
+      "name": "Send a message",
+      "webhookId": "21965c13-0731-443b-81e2-db07f5bab740",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "QAwkLYlKASuBUDAc",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9bd82dbf811a39c29e5ab9a31f56122939a3f2141853aef93bcc34dc39402c21"
+  }
+}
